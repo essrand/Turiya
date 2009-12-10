@@ -8,15 +8,27 @@ import _root_.net.liftweb.common._
  * The singleton that has methods for accessing the database
  */
 object User extends User with MetaMegaProtoUser[User] {
+  override def beforeCreate = maybeMakeSuper _ :: super.beforeCreate
+
+  /**
+   * If the user we're about to create the first user in the database
+   * make the user a super user
+   */
+  private def maybeMakeSuper(who: User) {
+    if (User.find().isEmpty) {
+      who.superUser(true)
+    }
+  }
+
   override def dbTableName = "users" // define the DB table name
   override def screenWrap = Full(<lift:surround with="default" at="content">
-			       <lift:bind /></lift:surround>)
+      <lift:bind /></lift:surround>)
   // define the order fields will appear in forms and output
   override def fieldOrder = List(id, firstName, lastName, email,
-  locale, timezone, password, textArea)
+                                 locale, timezone, password, textArea)
 
-  // comment this line out to require email validations
-  override def skipEmailValidation = true
+  // comment this line out to require email validations in dev mode
+  override def skipEmailValidation = Props.devMode
 }
 
 /**

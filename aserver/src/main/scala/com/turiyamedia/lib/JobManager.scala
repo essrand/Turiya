@@ -72,8 +72,9 @@ object JobManager extends LiftActor {
   private def runJob(job: Job) {
     new Thread("Job "+job.id) {
       override def run() {
-        Thread.sleep(10000)
-        val raw = RawData.create.data(<span>Finished job {job.id}</span>.toString.getBytes("UTF-8")).saveMe
+        Thread.sleep(30000) // hang out and do nothing... why... makes it look better in demos
+        val response = ProcessLoginDates.runJob(job)
+        val raw = RawData.create.data(response.toString.getBytes("UTF-8")).saveMe
         job.answerData(raw).save
         JobManager ! JobFinished(job)
       }

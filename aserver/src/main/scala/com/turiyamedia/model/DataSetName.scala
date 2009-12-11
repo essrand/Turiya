@@ -12,6 +12,8 @@ class DataSetName extends LongKeyedMapper[DataSetName] with IdPK {
 
   object user extends MappedLongForeignKey(this, User)
   object name extends MappedPoliteString(this, 128)
+
+  def dataBlobs: List[DataSet] = DataSet.findAll(By(DataSet.name, this), OrderBy(DataSet.id, Ascending))
 }
 
 object DataSetName extends DataSetName with LongKeyedMetaMapper[DataSetName]

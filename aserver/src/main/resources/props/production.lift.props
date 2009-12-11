@@ -1,0 +1,5 @@
+db.driver=org.postgresql.Driver
+db.url=jdbc:postgresql://localhost/turiya_prod
+db.user=lift
+db.password=
+

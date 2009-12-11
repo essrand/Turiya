@@ -28,12 +28,14 @@ class Boot {
 
     // where to search snippet
     LiftRules.addToPackages("com.turiyamedia")
-    Schemifier.schemify(true, Log.infoF _, User, DataSetName, PlayTime)
+    Schemifier.schemify(true, Log.infoF _, User, DataSetName, PlayTime, EventInfo,
+                        RawData, DataSet, Job)
 
     // Build SiteMap
     val entries = Menu(Loc("Home", List("index"), "Home")) ::
     Menu(Loc("upload", List("upload"), "Upload Data", If(User.loggedIn_? _, "You must be logged in"),
              Loc.Snippet("wizard", ignore => DataSetWizard.toForm))) ::
+    Menu(Results) ::
     User.sitemap
 
     LiftRules.setSiteMap(SiteMap(entries:_*))
@@ -55,6 +57,8 @@ class Boot {
     LiftRules.loggedInTest = Full(() => User.loggedIn_?)
 
     S.addAround(DB.buildLoanWrapper)
+
+    JobManager.touch
   }
 
   /**

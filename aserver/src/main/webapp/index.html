@@ -1,9 +1,6 @@
 <lift:surround with="default" at="content">
-  <h2>Welcome to your project!</h2>
-		<p>
-      <lift:helloWorld.howdy>
-        <span>Welcome to aserver at <b:time/></span>
-      </lift:helloWorld.howdy>
-    </p>
+  <lift:test_cond.loggedin>
+    <lift:comet type="JobChart"/>
+  </lift:test_cond.loggedin>
 </lift:surround>
 

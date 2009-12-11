@@ -56,12 +56,47 @@ object DataSetWizard extends Wizard {
   }
 
   val uploadData = new Screen {
+    val theData = new Field {
+      type ValueType = Array[Byte]
 
+      // for this version, we'll just allow uploading stuff into memory... in
+      // future versions, we'll move to caching on file, etc.
+      def default = new Array[Byte](0)
+
+      def title = S ?? "Upload your data (5MB limit)"
+
+      lazy val manifest = buildIt[ValueType]
+
+
+      /**
+       * Set to true if this field is part of a multi-part mime upload
+       */
+      override def uploadField_? = true
+      
+      override def toForm =
+      SHtml.fileUpload(fp => set(fp.file))
+
+      private def checkLen(in: Array[Byte]): List[FieldError] =
+      if (in == null || in.length < 10) List(FieldError(this, Text("Not enough data uploaded")))
+      else Nil
+
+      override def validation = checkLen _ :: super.validation
+    }
   }
 
   def finish() {
     val dataSet: DataSetName = choose.chooseField.is openOr DataSetName.create.name(newSet.name.is).user(User.currentUser).saveMe
-    ()
+    
+    // record the event
+    EventInfo.create.user(User.currentUser).event(Event.uploadData).data(dataSet.name).save
+
+    val raw = RawData.create.data(uploadData.theData.is).saveMe
+
+    DataSet.create.data(raw).name(dataSet).saveMe
+
+    DB.performPostCommit{
+      JobManager ! NewJob(dataSet)
+    }
   }
   
 }
